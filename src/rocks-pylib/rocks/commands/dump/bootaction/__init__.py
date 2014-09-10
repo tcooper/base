@@ -60,10 +60,10 @@ class Command(rocks.commands.dump.command):
 	"""
 
 	def run(self, params, args):
-		self.db.execute("""select Action, Kernel, Ramdisk, Args
+		self.db.execute("""select Action, Args
 			from bootaction""")
 
-		for ac, k, r, ar in self.db.fetchall():
-			self.dump('add bootaction action="%s" kernel="%s" ramdisk="%s" args="%s"' % (ac, k, r, ar))
+		for ac, ar in self.db.fetchall():
+			self.dump('add bootaction action="%s" args="%s"' % (ac, ar))
 
 RollName = "base"
