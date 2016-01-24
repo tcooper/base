@@ -1,3 +1,4 @@
+VERSION		= 6.2.1
 RELEASE		= 2
 COLOR		= yellow
 
