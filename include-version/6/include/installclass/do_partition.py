@@ -150,12 +150,9 @@ else:
 
 raid = []
 raidparts = []
-lvmparts = []
 for line in parts:
 	if line[0:4] == 'raid':
 		raid.append(line)
-	if line[0:4] == 'volg' or line[0:4] == 'logv':
-		lvmparts.append(line)
 	else:
 		print line
 	
@@ -195,5 +192,3 @@ for line in raidparts:
 for line in raid:
 	print line
 
-for line in lvmparts:
-	print line
