@@ -17,7 +17,7 @@ PKGS=Packages
 BASEPATH=$(VERSION)/os/$(ARCH)/$(PKGS)/
 endif
 
-MIRRORURL=http://mirror.pac-12.org
+MIRRORURL=http://vault.centos.org
 UPDATESPATH=$(VERSION)/updates/$(ARCH)/$(PKGS)/
 
 ROLLNAME=CentOS-$(VERSION)-Updated
