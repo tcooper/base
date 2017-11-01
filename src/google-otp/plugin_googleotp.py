@@ -59,6 +59,7 @@ import os
 import string
 import subprocess
 import rocks.commands
+import re
 
 class Plugin(rocks.commands.Plugin):
 	"""Adds users to the google-otp group, if specified in attribute"""
@@ -74,7 +75,16 @@ class Plugin(rocks.commands.Plugin):
 			return 0
 
 	def run(self, args):
-		# scan the password for users >= 500  
+
+		f = open("/etc/login.defs","r")
+		l = f.readlines()
+		try:
+			self.UIDMIN = int(filter(lambda x : re.match('^UID_MIN',x), l)[0].strip().split()[1])
+			self.UIDMAX = int(filter(lambda x : re.match('^UID_MAX',x), l)[0].strip().split()[1])
+		except:
+			self.UIDMIN = 1000
+			self.UIDMAX = 60000
+		# scan the password for users >= 1000
 		# this is the default entry as setup by useradd
 		otp_users = []
 		userOTP = self.db.getHostAttr('localhost', 'Info_GoogleOTPUsers')
@@ -89,8 +99,8 @@ class Plugin(rocks.commands.Plugin):
 				username = l[0]
 				uid = int(l[2])
 
-				# only users in Range
-				if uid >= 500 and uid < 65534: 
+				# only users in Range (UID_MIN and UID_MAX from /etc/login.defs)
+				if uid >= self.UIDMIN and uid < self.UIDMAX:
 					otp_users.append(username)
 				file.close()
 

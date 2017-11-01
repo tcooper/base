@@ -384,12 +384,13 @@ class Service411:
 		pattern = "\n*(?P<comment>.*?)\$411id\$"
 		self.header_pattern = re.compile(pattern)
 
-		pattern = "<a href=.+>(?P<filename>.+)</a> +(?P<date>\d+.*) +(?P<size>\d+.*)"
+		pattern = "<a href=(?P<href>.+)>(?P<filename>.+)</a> +(?P<date>\d+.*) +(?P<size>\d+.*)"
 		# Make the pattern matching engine case-insensitive.
 		self.dir_pattern = re.compile(pattern, re.I)
 
 		# Use Blowfish with fast Cipher Block Chaining.
 		self.sym = POW.Symmetric(POW.BF_CBC)
+
 
 	def fillPool(self):
 		"""Starts the random pool. Dont do in constructor since this
@@ -545,8 +546,16 @@ class Service411:
 				continue
 			#print line
 			filename = m.group('filename')
+			try:
+				s = m.group('href')
+				href = s.replace('"','')
+			except:
+				href = filename
 			if filename == "Parent Directory":
 				continue
+			# CentOS7, files that end in .conf are "butchered"
+			if '&gt;' in filename:
+				filename = href
 			if filename[-1] == '/':
 				if self.verbose:
 					print "Found directory %s (%s)" \
@@ -843,6 +852,19 @@ class Service411:
 class Plugin:
 	def __init__(self, attrs = {}):
 		self.attrs = attrs
+		# Use defaults found it /etc/login.def
+		try:
+			f = open("/etc/login.defs","r")
+			l = f.readlines()
+			self.UIDMIN = int(filter(lambda x : re.match('^UID_MIN',x), l)[0].strip().split()[1])
+			self.UIDMAX = int(filter(lambda x : re.match('^UID_MAX',x), l)[0].strip().split()[1])
+			self.GIDMIN = int(filter(lambda x : re.match('^GID_MIN',x), l)[0].strip().split()[1])
+			self.GIDMAX = int(filter(lambda x : re.match('^GID_MAX',x), l)[0].strip().split()[1])
+		except:
+			self.UIDMIN = 1000
+			self.UIDMAX = 60000
+			self.GIDMIN = self.UIDMIN
+			self.GIDMAX = self.UIDMAX
 		pass
 	
 class NodeFilter(xml.dom.NodeFilter.NodeFilter):
